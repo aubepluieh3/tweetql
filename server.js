@@ -4,10 +4,12 @@ let tweets = [
   {
     id: "1",
     text: "first one!",
+    userId: "2",
   },
   {
     id: "2",
     text: "second one",
+    userId: "1",
   },
 ];
 
@@ -58,12 +60,17 @@ const resolvers = {
   },
   Mutation: {
     postTweet(_, { text, userId }) {
-      const newTweet = {
-        id: tweets.length + 1,
-        text,
-      };
-      tweets.push(newTweet);
-      return newTweet;
+      if (users.find((user) => user.id === userId)) {
+        const newTweet = {
+          id: tweets.length + 1,
+          text,
+          userId,
+        };
+        tweets.push(newTweet);
+        return newTweet;
+      } else {
+        throw new Error("Check userId!");
+      }
     },
     deleteTweet(_, { id }) {
       const tweet = tweets.find((tweet) => tweet.id === id);
@@ -75,6 +82,11 @@ const resolvers = {
   User: {
     fullName({ firstName, lastName }) {
       return `${firstName} ${lastName}`;
+    },
+  },
+  Tweet: {
+    author({ userId }) {
+      return users.find((user) => user.id === userId);
     },
   },
 };
